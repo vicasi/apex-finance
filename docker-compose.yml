@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: apexfinance-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-apexfinance}
+      POSTGRES_USER: ${POSTGRES_USER:-apexfinance}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-apexfinance}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-apexfinance} -d ${POSTGRES_DB:-apexfinance}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    networks:
+      - apexfinance
+
+  app:
+    build: .
+    container_name: apexfinance-app
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${POSTGRES_DB:-apexfinance}
+      DB_USER: ${POSTGRES_USER:-apexfinance}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-apexfinance}
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - apexfinance
+
+volumes:
+  postgres_data:
+
+networks:
+  apexfinance:
+    driver: bridge

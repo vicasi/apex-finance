@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ApexFinance - Dashboard Financeiro</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <div class="app-layout">
+    <header class="navbar">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+            <polyline points="16 7 22 7 22 13"></polyline>
+          </svg>
+        </div>
+        <div class="brand-text">Apex<span>Finance</span></div>
+      </div>
+
+      <div class="search-bar">
+        <div class="input-with-icon">
+          <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="searchTicker" value="API" placeholder="Ticker (Ex: API, AAPL, PETR4.SA)">
+        </div>
+        <button class="btn btn-primary" onclick="fetchYahooData()">
+          <span class="badge-method">GET</span> Buscar Dados
+        </button>
+      </div>
+    </header>
+
+    <main class="grid-container">
+      <!-- Coluna Esquerda: Formulário e Tabela de Carteira -->
+      <section class="column">
+        <div class="card glass-card">
+          <div class="card-header">
+            <h2 class="card-title" id="formTitle">
+              <span class="badge badge-post">POST</span> Adicionar Posição
+            </h2>
+            <p class="card-subtitle">Cadastre novos ativos na sua carteira local</p>
+          </div>
+
+          <form id="portfolioForm" onsubmit="handleFormSubmit(event)">
+            <input type="hidden" id="editId" value="-1">
+            <div class="form-group">
+              <label for="inputTicker">Ticker do Ativo</label>
+              <input type="text" id="inputTicker" placeholder="Ex: API, AAPL, VALE3.SA" required>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="inputQty">Quantidade</label>
+                <input type="number" id="inputQty" placeholder="Ex: 10" step="any" required>
+              </div>
+              <div class="form-group">
+                <label for="inputPrice">Preço Médio ($)</label>
+                <input type="number" id="inputPrice" placeholder="Ex: 15.50" step="any" required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-accent btn-full" id="btnSubmit">
+              Salvar na Carteira
+            </button>
+            <button type="button" id="btnCancelEdit" onclick="resetForm()" class="btn btn-secondary btn-full margin-top-sm" style="display: none;">
+              Cancelar Edição
+            </button>
+          </form>
+        </div>
+
+        <div class="card glass-card">
+          <div class="card-header flex-between">
+            <div>
+              <h2 class="card-title">Minha Carteira</h2>
+              <p class="card-subtitle">Posições ativas sincronizadas</p>
+            </div>
+            <span class="badge badge-info" id="portfolioCount">0 Ativos</span>
+          </div>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Ativo</th>
+                  <th>Qtd.</th>
+                  <th>P. Médio</th>
+                  <th class="text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="portfolioTable">
+                <!-- Preenchido dinamicamente via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Coluna Direita: Métricas e Gráfico -->
+      <section class="column">
+        <div class="metrics-grid">
+          <div class="metric-card glass-card">
+            <span class="metric-label">Ativo Selecionado</span>
+            <div class="metric-value" id="dispTicker">--</div>
+            <span class="metric-tag">Yahoo Finance API</span>
+          </div>
+          <div class="metric-card glass-card">
+            <span class="metric-label">Preço Atual</span>
+            <div class="metric-value" id="dispPrice">--</div>
+            <span class="metric-tag">Tempo Real</span>
+          </div>
+          <div class="metric-card glass-card">
+            <span class="metric-label">Variação (24h)</span>
+            <div class="metric-value" id="dispChange">--</div>
+            <span class="metric-tag">Desempenho Diário</span>
+          </div>
+        </div>
+
+        <div class="card glass-card chart-card">
+          <div class="card-header flex-between">
+            <div>
+              <h2 class="card-title">Histórico de Fechamento</h2>
+              <p class="card-subtitle">Variação de cotação dos últimos 30 dias</p>
+            </div>
+            <div class="live-pill">
+              <span class="pulse"></span> AO VIVO
+            </div>
+          </div>
+          <div class="chart-container">
+            <canvas id="financeChart"></canvas>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
